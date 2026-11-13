@@ -396,7 +396,11 @@ public class MainActivity extends Activity {
         new Thread(() -> {
             try {
                 java.net.URL url = new java.net.URL("https://api.ip.sb/geoip");
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                // 本 App 被排除在自己的 VPN 之外，必须经本地 SOCKS 代理检测，才能看到真实出口
+                int socksPort = new Preferences(MainActivity.this).getSocksPort();
+                java.net.Proxy proxy = new java.net.Proxy(java.net.Proxy.Type.SOCKS,
+                    new InetSocketAddress("127.0.0.1", socksPort));
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection(proxy);
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(5000);
                 conn.setReadTimeout(5000);
@@ -422,6 +426,7 @@ public class MainActivity extends Activity {
                     final String flagEmoji = getFlagEmoji(countryCode);
                     
                     runOnUiThread(() -> {
+                        if (!isRunning) return; // 已停止就不要再显示“已连接”
                         ipText.setText(getString(R.string.ip_format, displayText));
                         // 可以设置国旗表情符号或图标
                         if (!flagEmoji.isEmpty()) {
