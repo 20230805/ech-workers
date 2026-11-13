@@ -163,7 +163,7 @@ jobs:
         done
     
     - name: Sign APK
-        if: false
+      if: false
       working-directory: ./android
       env:
         KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
