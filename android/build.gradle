@@ -171,6 +171,9 @@ signingConfigs {
         storePassword "android"
         keyAlias "androiddebugkey"
         keyPassword "android"
+        // 同时带 v1(JAR) 和 v2 签名，兼容 vivo 等安装器的证书检查
+        enableV1Signing true
+        enableV2Signing true
     }
     release {
         if (rootProject.file('store.properties').exists()) {
