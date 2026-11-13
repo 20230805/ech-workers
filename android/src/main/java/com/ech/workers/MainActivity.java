@@ -148,6 +148,7 @@ public class MainActivity extends Activity {
             
             Set<String> profileSet = prefs.getStringSet("profile_list", new HashSet<>());
             profiles = new ArrayList<>(profileSet);
+            java.util.Collections.sort(profiles);
             Log.d(TAG, "loadProfiles: Loaded " + profiles.size() + " profiles");
             
             if (profiles.isEmpty()) {
