@@ -315,6 +315,19 @@ public class MainActivity extends Activity {
     }
 
     private void checkServiceStatus() {
+        // VPN 服务在独立进程 :vpn 中运行，且本 App 被排除在自己的 VPN 之外，
+        // 所以不能靠本进程的网络状态判断，直接查自己的前台服务是否在运行
+        try {
+            android.app.ActivityManager am = (android.app.ActivityManager) getSystemService(ACTIVITY_SERVICE);
+            for (android.app.ActivityManager.RunningServiceInfo si : am.getRunningServices(Integer.MAX_VALUE)) {
+                if (TProxyService.class.getName().equals(si.service.getClassName()) && si.foreground) {
+                    isRunning = true;
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "checkServiceStatus", e);
+        }
         // 检查 VPN 服务是否真的在运行
         ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         Network activeNetwork = cm.getActiveNetwork();
