@@ -182,10 +182,13 @@ public class MainActivity extends Activity {
             profileSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    currentProfile = profiles.get(position);
+                    String selected = profiles.get(position);
+                    boolean changed = currentProfile != null && !selected.equals(currentProfile);
+                    currentProfile = selected;
                     prefs.edit().putString("last_profile", currentProfile).apply();
                     
-                    if (isRunning) {
+                    // 仅在用户真正切换到另一个节点时才停止；onResume 重新加载列表不应断开
+                    if (changed && isRunning) {
                         stopService();
                     }
                     updateUI();
