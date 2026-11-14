@@ -11,40 +11,10 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
 )
-
-// Android 上没有 /etc/resolv.conf，Go 自带解析器会去问 127.0.0.1:53 而失败（no such host / connection refused）。
-// 这里让默认解析器改用 223.5.5.5 / 119.29.29.29。
-func init() {
-	if runtime.GOOS != "android" {
-		return
-	}
-	if _, err := os.Stat("/etc/resolv.conf"); err == nil {
-		return
-	}
-	servers := []string{"223.5.5.5:53", "119.29.29.29:53", "1.1.1.1:53"}
-	net.DefaultResolver = &net.Resolver{
-		PreferGo: true,
-		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-			var lastErr error
-			for _, s := range servers {
-				d := net.Dialer{Timeout: 3 * time.Second}
-				c, err := d.DialContext(ctx, "udp", s)
-				if err == nil {
-					return c, nil
-				}
-				lastErr = err
-			}
-			return nil, lastErr
-		},
-	}
-	log.Printf("[DNS] Android 无 resolv.conf，系统解析改用 %v", servers)
-}
 
 // ======================== 优选地址解析 ========================
 // 优选栏可填 IP 或域名。填域名时先解析成 IP 再拨号，SNI/Host 仍用原服务域名。
