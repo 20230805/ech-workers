@@ -418,8 +418,8 @@ public class MainActivity extends Activity {
                     new InetSocketAddress("127.0.0.1", socksPort));
                 java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection(proxy);
                 conn.setRequestMethod("GET");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(12000);
+                conn.setReadTimeout(12000);
                 
                 int responseCode = conn.getResponseCode();
                 if (responseCode == 200) {
