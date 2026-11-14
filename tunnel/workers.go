@@ -817,10 +817,8 @@ func queryDoHForProxy(dnsQuery []byte) ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
-			dialer := &net.Dialer{
-				Timeout: 10 * time.Second,
-			}
-			return dialer.DialContext(ctx, network, net.JoinHostPort(serverIP, port))
+			_ = port
+			return dialPreferred(ctx, network, addr)
 		}
 	}
 
@@ -911,7 +909,8 @@ func dialWebSocketWithECH(maxRetries int) (*websocket.Conn, error) {
 				if err != nil {
 					return nil, err
 				}
-				return net.DialTimeout(network, net.JoinHostPort(serverIP, port), 10*time.Second)
+				_ = port
+				return dialPreferred(context.Background(), network, address)
 			}
 		}
 
@@ -946,6 +945,11 @@ func runProxyServer(addr string) {
 	log.Printf("[代理] 后端服务器: %s", serverAddr)
 	if serverIP != "" {
 		log.Printf("[代理] 使用固定 IP: %s", serverIP)
+		if ip, err := resolvePreferredIP(); err == nil {
+			log.Printf("[代理] 优选地址 %s 当前解析为 %s", serverIP, ip)
+		} else {
+			log.Printf("[代理] %v", err)
+		}
 	}
 
 	for {
